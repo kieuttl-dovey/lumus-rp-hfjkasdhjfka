@@ -1,0 +1,2360 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lumus Internal Test — Báo cáo kết quả dành cho Ban Điều hành</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Space+Grotesk:wght@600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --electric:#0741E1;
+      --azure:#0078D7;
+      --cyan:#00AFF0;
+      --iris:#EDECFF;
+      --ink:#03041C;
+      --dark:#3A3A50;
+      --slate:#6F6C8F;
+      --gray:#A0A3BD;
+      --white:#FFFFFF;
+      --line:rgba(160,163,189,.28);
+      --soft:rgba(237,236,255,.42);
+      --soft-blue:rgba(0,120,215,.065);
+      --shadow:0 10px 28px rgba(7,65,225,.07);
+
+      /* Alias dùng trong layout */
+      --navy:var(--electric);
+      --navy-2:var(--azure);
+      --blue:var(--electric);
+      --blue-2:var(--azure);
+      --muted:var(--slate);
+      --green:var(--azure);
+      --green-bg:rgba(0,120,215,.08);
+      --amber:var(--azure);
+      --amber-bg:rgba(237,236,255,.72);
+      --red:var(--electric);
+      --red-bg:rgba(7,65,225,.07);
+    }
+
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Roboto,Arial,sans-serif;
+      color:var(--ink);
+      background:linear-gradient(180deg, rgba(237,236,255,.58) 0%, #FFFFFF 42%, rgba(237,236,255,.28) 100%);
+      line-height:1.55;
+    }
+
+    .page{
+      width:min(1220px,calc(100% - 32px));
+      margin:24px auto 60px;
+    }
+
+    .cover{
+      position:relative;
+      overflow:hidden;
+      background:
+        radial-gradient(circle at 92% 18%,rgba(0,175,240,.22),transparent 23%),
+        linear-gradient(135deg,#0741E1 0%,#0078D7 64%,#00AFF0 100%);
+      color:#fff;
+      border-radius:28px;
+      padding:42px 44px 38px;
+      box-shadow:0 18px 42px rgba(7,65,225,.16);
+    }
+    .cover:after{
+      content:"";
+      position:absolute;
+      width:260px;height:260px;
+      border-radius:50%;
+      border:1px solid rgba(255,255,255,.13);
+      right:-60px;bottom:-110px;
+    }
+    .cover-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:24px;
+      position:relative;
+      z-index:2;
+    }
+    .brand{
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      opacity:.78;
+    }
+    .brand-logo{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:238px;
+      height:72px;
+      padding:10px 16px;
+      border-radius:16px;
+      background:#FFFFFF;
+      border:1px solid rgba(255,255,255,.42);
+      box-shadow:0 10px 24px rgba(3,4,28,.14);
+    }
+    .brand-logo img{
+      display:block;
+      width:100%;
+      height:100%;
+      object-fit:contain;
+    }
+
+    .report-type{
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.18);
+      font-size:11px;
+      font-weight:700;
+    }
+    .cover h1{
+      margin:24px 0 10px;
+      max-width:850px;
+      font-family:"Space Grotesk",Roboto,Arial,sans-serif;
+      font-size:clamp(36px,5vw,60px);
+      line-height:1.03;
+      letter-spacing:-.04em;
+      position:relative;
+      z-index:2;
+    }
+    .cover .subtitle{
+      max-width:820px;
+      color:rgba(255,255,255,.82);
+      font-size:15px;
+      position:relative;
+      z-index:2;
+    }
+    .headline{
+      margin-top:28px;
+      position:relative;
+      z-index:2;
+      padding:18px 20px;
+      max-width:920px;
+      border-radius:16px;
+      background:rgba(255,255,255,.09);
+      border:1px solid rgba(255,255,255,.16);
+      font-size:17px;
+      font-weight:600;
+      line-height:1.5;
+    }
+
+    .section{
+      margin-top:24px;
+      background:#fff;
+      border:1px solid var(--line);
+      border-top:3px solid var(--electric);
+      border-radius:22px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .section-inner{padding:26px}
+    .section-head{
+      display:flex;
+      justify-content:space-between;
+      gap:18px;
+      align-items:end;
+      margin-bottom:18px;
+    }
+    .section-kicker{
+      font-size:11px;
+      font-weight:700;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      color:var(--blue);
+      margin-bottom:3px;
+    }
+    h2{
+      margin:0;
+      font-family:"Space Grotesk",Roboto,Arial,sans-serif;
+      color:var(--navy);
+      font-size:26px;
+      letter-spacing:-.025em;
+    }
+    .section-note{
+      color:var(--muted);
+      font-size:12px;
+      text-align:right;
+      max-width:380px;
+    }
+
+    .grid{display:grid;gap:14px}
+    .kpis{grid-template-columns:repeat(6,1fr)}
+    .kpi{
+      min-height:132px;
+      padding:17px 16px;
+      border:1px solid var(--line);
+      border-radius:17px;
+      background:linear-gradient(180deg,#fff,#fbfdff);
+    }
+    .kpi-label{
+      color:var(--muted);
+      font-size:10.5px;
+      line-height:1.35;
+      text-transform:uppercase;
+      letter-spacing:.07em;
+      font-weight:700;
+      min-height:30px;
+    }
+    .kpi-value{
+      margin-top:5px;
+      font-family:"Space Grotesk",Roboto,Arial,sans-serif;
+      color:var(--navy);
+      font-weight:700;
+      font-size:28px;
+      letter-spacing:-.04em;
+    }
+    .kpi-sub{
+      margin-top:3px;
+      color:var(--muted);
+      font-size:11px;
+      line-height:1.4;
+    }
+
+    .assessment{
+      margin-top:16px;
+      display:grid;
+      grid-template-columns:1fr 250px;
+      gap:14px;
+      align-items:stretch;
+    }
+    .assessment-text{
+      padding:20px 22px;
+      border-radius:17px;
+      background:var(--soft-blue);
+      border:1px solid rgba(0,120,215,.18);
+      color:#3A3A50;
+      font-size:14px;
+    }
+    .assessment-text strong{color:var(--navy)}
+    .status{
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      padding:18px 20px;
+      border-radius:17px;
+      background:var(--amber-bg);
+      border:1px solid rgba(0,120,215,.18);
+    }
+    .status .light{
+      width:12px;height:12px;border-radius:50%;
+      background:#00AFF0;
+      box-shadow:0 0 0 6px rgba(0,175,240,.14);
+      margin-bottom:10px;
+    }
+    .status small{
+      text-transform:uppercase;
+      color:#0078D7;
+      font-size:10px;
+      font-weight:700;
+      letter-spacing:.08em;
+    }
+    .status strong{
+      margin-top:3px;
+      color:#0741E1;
+      font-family:"Space Grotesk",Roboto,Arial,sans-serif;
+      font-size:15px;
+      line-height:1.35;
+    }
+
+    .findings{grid-template-columns:repeat(3,1fr)}
+    .finding{
+      position:relative;
+      padding:20px;
+      border-radius:18px;
+      border:1px solid var(--line);
+      background:#fff;
+      overflow:hidden;
+      min-height:220px;
+    }
+    .finding:before{
+      content:"";
+      position:absolute;
+      left:0;top:0;bottom:0;width:4px;
+      background:var(--blue);
+    }
+    .finding:nth-child(2):before{background:var(--cyan)}
+    .finding:nth-child(3):before{background:var(--navy)}
+    .finding-num{
+      color:#dbe7f7;
+      font-family:"Space Grotesk",Roboto,Arial,sans-serif;
+      font-size:42px;
+      line-height:1;
+      font-weight:700;
+      position:absolute;
+      right:16px;top:13px;
+    }
+    .finding h3{
+      margin:0 0 9px;
+      max-width:82%;
+      color:var(--navy);
+      font-size:16px;
+    }
+    .finding p{
+      margin:0;
+      color:var(--muted);
+      font-size:12.5px;
+    }
+    .finding .impact{
+      display:inline-flex;
+      margin-top:14px;
+      padding:5px 8px;
+      border-radius:999px;
+      font-size:10px;
+      font-weight:700;
+      color:var(--blue);
+      background:rgba(7,65,225,.07);
+    }
+
+    .bug-layout{
+      display:grid;
+      grid-template-columns:1.05fr .95fr;
+      gap:18px;
+      align-items:center;
+    }
+    .bars{display:grid;gap:11px}
+    .bar-row{
+      display:grid;
+      grid-template-columns:220px 1fr 70px;
+      gap:12px;
+      align-items:center;
+    }
+    .bar-label{font-size:12px;font-weight:700;color:#3A3A50}
+    .bar-track{
+      height:11px;
+      border-radius:999px;
+      overflow:hidden;
+      background:rgba(160,163,189,.16);
+    }
+    .bar-fill{
+      height:100%;
+      border-radius:999px;
+      background:linear-gradient(90deg,var(--blue),var(--cyan));
+    }
+    .bar-value{
+      text-align:right;
+      font-size:11px;
+      font-weight:700;
+      color:var(--navy);
+    }
+    .priority-box{
+      padding:21px;
+      border-radius:18px;
+      background:rgba(237,236,255,.24);
+      border:1px solid var(--line);
+    }
+    .priority-box h3{margin:0 0 12px;color:var(--navy);font-size:15px}
+    .priority-list{display:grid;gap:9px}
+    .priority-item{
+      display:grid;
+      grid-template-columns:44px 1fr;
+      gap:11px;
+      align-items:start;
+    }
+    .priority-item .pill{
+      display:grid;
+      place-items:center;
+      height:28px;
+      border-radius:9px;
+      font-size:10px;
+      font-weight:700;
+    }
+    .pill.p0{background:var(--red-bg);color:var(--red)}
+    .pill.p1{background:var(--amber-bg);color:var(--amber)}
+    .priority-item strong{display:block;color:#3A3A50;font-size:12px}
+    .priority-item span{display:block;color:var(--muted);font-size:11px;margin-top:2px}
+
+    .adoption{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:18px;
+    }
+    .funnel{
+      padding:21px;
+      border-radius:18px;
+      border:1px solid var(--line);
+      background:#FFFFFF;
+    }
+    .funnel h3,.signal h3{margin:0 0 15px;color:var(--navy);font-size:15px}
+    .funnel-step{
+      margin:0 auto 9px;
+      height:58px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:0 16px;
+      color:#fff;
+      border-radius:12px;
+      font-size:12px;
+      font-weight:700;
+    }
+    .funnel-step span:last-child{
+      font-family:"Space Grotesk",Roboto,Arial,sans-serif;
+      font-size:17px;
+    }
+    .f1{width:100%;background:#0741E1}
+    .f2{width:83%;background:#0078D7}
+    .f3{width:62%;background:#00AFF0}
+    .f4{width:42%;background:#EDECFF;color:#3A3A50}
+    .funnel-note{
+      margin-top:12px;
+      padding-top:12px;
+      border-top:1px dashed var(--line);
+      color:var(--muted);
+      font-size:11px;
+    }
+
+    .signal{
+      padding:21px;
+      border-radius:18px;
+      border:1px solid var(--line);
+      background:#fff;
+    }
+    .signal-grid{
+      grid-template-columns:1fr 1fr;
+    }
+    .signal-card{
+      padding:15px;
+      border-radius:14px;
+      background:var(--soft);
+      border:1px solid rgba(160,163,189,.20);
+    }
+    .signal-card .v{
+      font-family:"Space Grotesk",Roboto,Arial,sans-serif;
+      color:var(--navy);
+      font-size:25px;
+      font-weight:700;
+    }
+    .signal-card .l{
+      color:var(--muted);
+      font-size:11px;
+      line-height:1.4;
+    }
+    .warning{
+      margin-top:13px;
+      padding:13px 14px;
+      border-radius:13px;
+      background:var(--amber-bg);
+      border:1px solid rgba(0,120,215,.18);
+      color:#3A3A50;
+      font-size:11.5px;
+    }
+
+    .campaign{grid-template-columns:repeat(4,1fr)}
+    .campaign-card{
+      padding:17px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      text-align:center;
+      background:#fff;
+    }
+    .campaign-card .v{
+      color:var(--navy);
+      font-family:"Space Grotesk",Roboto,Arial,sans-serif;
+      font-size:26px;
+      font-weight:700;
+    }
+    .campaign-card .l{
+      margin-top:2px;
+      color:var(--muted);
+      font-size:11px;
+    }
+    .campaign-summary{
+      margin-top:15px;
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:12px;
+    }
+    .campaign-insight{
+      padding:15px 16px;
+      border-radius:14px;
+      background:rgba(237,236,255,.24);
+      border:1px solid var(--line);
+      color:#3A3A50;
+      font-size:11.5px;
+    }
+    .campaign-insight strong{
+      display:block;
+      color:var(--navy);
+      margin-bottom:4px;
+    }
+
+    .reward-grid{grid-template-columns:1.2fr .8fr}
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:11.5px;
+    }
+    th{
+      text-align:left;
+      padding:10px 12px;
+      background:var(--navy);
+      color:#fff;
+      font-size:10.5px;
+      letter-spacing:.03em;
+    }
+    td{
+      padding:10px 12px;
+      border-bottom:1px solid var(--line);
+      vertical-align:top;
+    }
+    tr:last-child td{border-bottom:none}
+    .reward-summary{
+      border:1px solid var(--line);
+      border-radius:16px;
+      overflow:hidden;
+    }
+    .reward-side{
+      padding:20px;
+      border-radius:16px;
+      background:linear-gradient(180deg,rgba(237,236,255,.25),#fff);
+      border:1px solid var(--line);
+    }
+    .reward-side .money{
+      color:var(--navy);
+      font-family:"Space Grotesk",Roboto,Arial,sans-serif;
+      font-size:32px;
+      font-weight:600;
+      letter-spacing:-.04em;
+    }
+    .reward-side .caption{color:var(--muted);font-size:11px}
+    .reward-side hr{border:0;border-top:1px solid var(--line);margin:16px 0}
+    .reward-side ul{margin:0;padding-left:18px;color:var(--muted);font-size:11.5px}
+    .reward-side li+li{margin-top:6px}
+
+    .actions{grid-template-columns:repeat(3,1fr)}
+    .action-card{
+      padding:20px;
+      border-radius:17px;
+      border:1px solid var(--line);
+      background:#fff;
+    }
+    .action-card .label{
+      display:inline-flex;
+      padding:5px 8px;
+      border-radius:999px;
+      font-size:10px;
+      font-weight:700;
+      margin-bottom:10px;
+    }
+    .action-card:nth-child(1) .label{background:var(--red-bg);color:var(--red)}
+    .action-card:nth-child(2) .label{background:var(--amber-bg);color:var(--amber)}
+    .action-card:nth-child(3) .label{background:var(--green-bg);color:var(--green)}
+    .action-card h3{margin:0 0 8px;color:var(--navy);font-size:15px}
+    .action-card ul{margin:0;padding-left:18px;color:var(--muted);font-size:11.5px}
+    .action-card li+li{margin-top:6px}
+    .recommendation{
+      margin-top:16px;
+      padding:21px 22px;
+      border-radius:17px;
+      background:linear-gradient(135deg,#0741E1,#0078D7);
+      color:#fff;
+    }
+    .recommendation .kicker{
+      font-size:10px;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      font-weight:700;
+      opacity:.72;
+    }
+    .recommendation p{
+      margin:7px 0 0;
+      max-width:930px;
+      font-size:15px;
+      font-weight:600;
+      line-height:1.55;
+    }
+
+    .target-table{
+      border:1px solid var(--line);
+      border-radius:16px;
+      overflow:hidden;
+    }
+    .source-chip{
+      display:inline-flex;
+      padding:4px 7px;
+      border-radius:999px;
+      background:rgba(237,236,255,.55);
+      color:#6F6C8F;
+      font-size:9.5px;
+      font-weight:700;
+      white-space:nowrap;
+    }
+    .proposed{
+      color:#0741E1;
+      font-weight:700;
+    }
+
+    .appendix{
+      background:rgba(237,236,255,.24);
+    }
+    .appendix-grid{grid-template-columns:repeat(2,1fr)}
+    .appendix-card{
+      padding:16px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:#fff;
+    }
+    .appendix-card h3{margin:0 0 7px;color:var(--navy);font-size:13px}
+    .appendix-card p{margin:0;color:var(--muted);font-size:11px}
+
+    .footer{
+      margin-top:22px;
+      color:#6F6C8F;
+      font-size:10.5px;
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:20px;
+      flex-wrap:wrap;
+      padding:0 4px;
+    }
+    .footer-source{
+      display:grid;
+      gap:4px;
+      max-width:920px;
+    }
+    .footer-logo{
+      width:142px;
+      padding:6px 10px;
+      border-radius:10px;
+      background:#FFFFFF;
+      border:1px solid var(--line);
+    }
+    .footer-logo img{
+      display:block;
+      width:100%;
+      height:auto;
+      object-fit:contain;
+    }
+
+    @media(max-width:1050px){
+      .kpis{grid-template-columns:repeat(3,1fr)}
+      .findings,.campaign-summary,.actions{grid-template-columns:1fr}
+      .bug-layout,.adoption,.reward-grid{grid-template-columns:1fr}
+      .campaign{grid-template-columns:repeat(2,1fr)}
+    }
+    @media(max-width:700px){
+      .page{width:min(100% - 18px,1220px);margin-top:9px}
+      .cover{padding:28px 22px;border-radius:20px}
+      .brand-logo{width:190px;height:60px;padding:8px 12px}
+      .section-inner{padding:18px}
+      .section-head{align-items:start;flex-direction:column}
+      .section-note{text-align:left}
+      .kpis,.campaign,.signal-grid,.appendix-grid{grid-template-columns:1fr}
+      .assessment{grid-template-columns:1fr}
+      .bar-row{grid-template-columns:1fr 60px}
+      .bar-track{grid-column:1/-1;grid-row:2}
+    }
+    @media print{
+      body{background:#fff}
+      .page{width:100%;margin:0}
+      .cover,.section{box-shadow:none}
+      .section{break-inside:avoid}
+    }
+  </style>
+
+<style>
+  /* ===== Visual review v8: readability for executive audience ===== */
+  body{font-size:14px; line-height:1.58;}
+  .page{width:min(1280px,calc(100% - 32px));}
+  .cover{padding:44px 48px 42px;}
+  .cover h1{font-size:clamp(38px,4.4vw,58px) !important; line-height:1.08;}
+  .cover .subtitle{font-size:16px; line-height:1.55; max-width:900px;}
+  .headline{font-size:18px; line-height:1.55; max-width:960px;}
+
+  .section-inner{padding:30px;}
+  .section-kicker{font-size:12px; letter-spacing:.11em;}
+  h2{font-size:30px !important; line-height:1.2;}
+  .section-note{font-size:13px; line-height:1.45; max-width:420px;}
+
+  /* KPI: 3 x 2 instead of 6 compressed cards */
+  .kpis{grid-template-columns:repeat(3,1fr) !important; gap:16px;}
+  .kpi{min-height:145px; padding:20px 20px;}
+  .kpi-label{font-size:12px; min-height:auto;}
+  .kpi-value{font-size:36px !important; margin-top:7px;}
+  .kpi-sub{font-size:12.5px; line-height:1.45;}
+  .kpi-status{
+    display:inline-flex; align-items:center; gap:6px;
+    margin-top:10px; padding:5px 9px; border-radius:999px;
+    font-size:10.5px; font-weight:700;
+    background:rgba(7,65,225,.07); color:var(--electric);
+  }
+  .kpi-status.low{background:rgba(237,236,255,.85); color:var(--dark);}
+  .kpi-status.warn{background:rgba(0,120,215,.09); color:var(--azure);}
+
+  .assessment{grid-template-columns:1fr 270px; gap:16px;}
+  .assessment-text{font-size:14.5px; line-height:1.6; padding:22px 24px;}
+  .status small{font-size:11px;}
+  .status strong{font-size:16px;}
+
+  .finding{min-height:235px; padding:22px;}
+  .finding h3{font-size:18px;}
+  .finding p{font-size:13.5px; line-height:1.55;}
+  .finding .impact{font-size:11px; padding:6px 9px;}
+
+  .bar-label{font-size:13px !important;}
+  .bar-value{font-size:12px !important;}
+  .priority-box h3{font-size:17px;}
+  .priority-item strong{font-size:13px;}
+  .priority-item span{font-size:12px; line-height:1.45;}
+  .priority-item .pill{font-size:11px;}
+
+  /* Adoption signal block */
+  .funnel h3,.signal h3{font-size:17px;}
+  .funnel-step{font-size:13px; min-height:60px; height:auto; padding:12px 16px;}
+  .funnel-step span:last-child{font-size:18px;}
+  .funnel-note{font-size:12px; line-height:1.5;}
+  .signal-card .v{font-size:28px !important;}
+  .signal-card .l{font-size:12.5px; line-height:1.5;}
+  .warning{font-size:12.5px; line-height:1.55;}
+
+  .campaign-card .v{font-size:30px !important;}
+  .campaign-card .l{font-size:12.5px;}
+  .campaign-insight{font-size:12.5px; line-height:1.5; padding:17px 18px;}
+  .campaign-insight strong{font-size:13px;}
+
+  table{font-size:12.5px;}
+  th{font-size:11.5px; padding:12px 14px;}
+  td{padding:12px 14px; line-height:1.45;}
+  .reward-side .money{font-size:38px !important;}
+  .reward-side .caption{font-size:12px;}
+  .reward-side ul{font-size:12.5px; line-height:1.5;}
+
+  .action-card{padding:22px;}
+  .action-card .label{font-size:11px;}
+  .action-card h3{font-size:17px;}
+  .action-card ul{font-size:12.5px; line-height:1.5;}
+  .recommendation p{font-size:16px;}
+
+  .appendix-card h3{font-size:14px;}
+  .appendix-card p{font-size:12px; line-height:1.5;}
+  .footer{font-size:11px;}
+
+  /* Success metrics as visual cards */
+  .metric-score-grid{
+    display:grid; grid-template-columns:repeat(2,1fr); gap:14px;
+  }
+  .metric-score{
+    border:1px solid var(--line);
+    border-radius:16px;
+    background:#fff;
+    padding:17px 18px;
+    display:grid;
+    grid-template-columns:1fr auto 1fr;
+    gap:12px;
+    align-items:center;
+  }
+  .metric-score .metric-title{
+    grid-column:1/-1;
+    font-family:"Space Grotesk",Roboto,Arial,sans-serif;
+    font-weight:600;
+    color:var(--electric);
+    font-size:14px;
+    margin-bottom:2px;
+  }
+  .metric-score .state{
+    min-height:70px;
+    padding:12px;
+    border-radius:12px;
+    background:rgba(237,236,255,.36);
+  }
+  .metric-score .state.target{background:rgba(0,120,215,.055);}
+  .metric-score .state-label{
+    display:block; font-size:10.5px; font-weight:700;
+    color:var(--slate); text-transform:uppercase; letter-spacing:.05em;
+  }
+  .metric-score .state-value{
+    display:block; margin-top:4px; color:var(--ink);
+    font-size:14px; font-weight:700; line-height:1.35;
+  }
+  .metric-score .arrow{
+    color:var(--azure); font-size:20px; font-weight:700;
+  }
+  .metric-score .purpose{
+    grid-column:1/-1;
+    padding-top:9px; margin-top:2px; border-top:1px solid var(--line);
+    color:var(--slate); font-size:11.5px;
+  }
+
+  @media(max-width:900px){
+    .kpis{grid-template-columns:repeat(2,1fr) !important;}
+    .metric-score-grid{grid-template-columns:1fr;}
+  }
+  @media(max-width:700px){
+    body{font-size:13.5px;}
+    .section-inner{padding:20px;}
+    h2{font-size:25px !important;}
+    .kpis{grid-template-columns:1fr !important;}
+    .kpi-value{font-size:32px !important;}
+    .metric-score{grid-template-columns:1fr;}
+    .metric-score .arrow{transform:rotate(90deg); justify-self:center;}
+  }
+</style>
+
+
+<style>
+  /* Keep visual blocks intact when printing / exporting PDF */
+  .metric-score,
+  .kpi,
+  .finding,
+  .campaign-card,
+  .campaign-insight,
+  .action-card,
+  .appendix-card,
+  .signal-card,
+  .priority-box,
+  .reward-side {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  @media print{
+    .metric-score-grid{grid-template-columns:repeat(2,1fr) !important;}
+    .metric-score{min-height:150px;}
+    .section-inner{padding:24px;}
+    .kpis{grid-template-columns:repeat(3,1fr) !important;}
+  }
+</style>
+
+
+<style>
+  /* ===== Event execution / campaign cadence ===== */
+  .event-verdict{
+    display:grid;
+    grid-template-columns:1.25fr .75fr;
+    gap:16px;
+    margin-bottom:18px;
+  }
+  .event-verdict-main{
+    padding:22px 24px;
+    border-radius:18px;
+    border:1px solid rgba(0,120,215,.18);
+    background:linear-gradient(135deg,rgba(7,65,225,.055),rgba(0,175,240,.045));
+  }
+  .event-verdict-main .verdict-label{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.09em;
+    font-weight:700;
+    color:var(--azure);
+  }
+  .event-verdict-main h3{
+    margin:6px 0 8px;
+    font-size:22px;
+    color:var(--electric);
+  }
+  .event-verdict-main p{
+    margin:0;
+    color:var(--dark);
+    font-size:13.5px;
+    line-height:1.6;
+  }
+  .verdict-split{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+  .verdict-chip{
+    padding:16px;
+    border-radius:16px;
+    border:1px solid var(--line);
+    background:#fff;
+  }
+  .verdict-chip .icon{
+    font-size:20px;
+    line-height:1;
+    margin-bottom:8px;
+  }
+  .verdict-chip strong{
+    display:block;
+    font-size:13px;
+    color:var(--electric);
+  }
+  .verdict-chip span{
+    display:block;
+    margin-top:4px;
+    font-size:11.5px;
+    line-height:1.45;
+    color:var(--slate);
+  }
+
+  .event-kpis{
+    grid-template-columns:repeat(5,1fr);
+    margin-bottom:18px;
+  }
+  .event-kpi{
+    padding:17px 16px;
+    border:1px solid var(--line);
+    border-radius:16px;
+    background:#fff;
+    min-height:118px;
+  }
+  .event-kpi .v{
+    font-family:"Space Grotesk",Roboto,Arial,sans-serif;
+    font-weight:600;
+    color:var(--electric);
+    font-size:29px;
+    letter-spacing:-.03em;
+  }
+  .event-kpi .l{
+    margin-top:4px;
+    color:var(--slate);
+    font-size:11.5px;
+    line-height:1.45;
+  }
+
+  .event-layout{
+    display:grid;
+    grid-template-columns:1.1fr .9fr;
+    gap:18px;
+  }
+  .timeline-card,
+  .cadence-card{
+    border:1px solid var(--line);
+    border-radius:18px;
+    background:#fff;
+    padding:20px;
+  }
+  .timeline-card h3,
+  .cadence-card h3{
+    margin:0 0 15px;
+    color:var(--electric);
+    font-size:17px;
+  }
+  .timeline{
+    position:relative;
+    display:grid;
+    gap:12px;
+  }
+  .timeline:before{
+    content:"";
+    position:absolute;
+    left:41px;
+    top:18px;
+    bottom:18px;
+    width:2px;
+    background:linear-gradient(var(--electric),var(--cyan));
+    opacity:.25;
+  }
+  .timeline-item{
+    position:relative;
+    display:grid;
+    grid-template-columns:68px 1fr;
+    gap:14px;
+    align-items:start;
+  }
+  .timeline-date{
+    position:relative;
+    z-index:1;
+    padding:6px 8px;
+    border-radius:10px;
+    background:var(--electric);
+    color:#fff;
+    text-align:center;
+    font-size:11px;
+    font-weight:700;
+  }
+  .timeline-content{
+    padding:4px 0 9px;
+  }
+  .timeline-content strong{
+    display:block;
+    color:var(--ink);
+    font-size:13px;
+  }
+  .timeline-content span{
+    display:block;
+    margin-top:2px;
+    color:var(--slate);
+    font-size:11.5px;
+    line-height:1.45;
+  }
+
+  .cadence-row{
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:12px;
+    align-items:center;
+    padding:12px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .cadence-row:last-of-type{border-bottom:0;}
+  .cadence-row .name{
+    color:var(--dark);
+    font-size:12.5px;
+    font-weight:500;
+  }
+  .cadence-row .value{
+    font-family:"Space Grotesk",Roboto,Arial,sans-serif;
+    font-weight:600;
+    color:var(--electric);
+    font-size:18px;
+    white-space:nowrap;
+  }
+  .cadence-note{
+    margin-top:12px;
+    padding:12px 13px;
+    border-radius:12px;
+    background:rgba(237,236,255,.48);
+    color:var(--dark);
+    font-size:11.5px;
+    line-height:1.5;
+  }
+  .execution-proof{
+    margin-top:16px;
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:12px;
+  }
+  .proof{
+    padding:14px 15px;
+    border-radius:14px;
+    background:rgba(237,236,255,.25);
+    border:1px solid var(--line);
+    font-size:11.5px;
+    color:var(--slate);
+    line-height:1.45;
+  }
+  .proof strong{
+    display:block;
+    color:var(--electric);
+    font-size:12px;
+    margin-bottom:3px;
+  }
+
+  @media(max-width:980px){
+    .event-verdict,
+    .event-layout{grid-template-columns:1fr;}
+    .event-kpis{grid-template-columns:repeat(2,1fr);}
+    .execution-proof{grid-template-columns:repeat(2,1fr);}
+  }
+  @media(max-width:700px){
+    .event-kpis,
+    .execution-proof,
+    .verdict-split{grid-template-columns:1fr;}
+  }
+</style>
+
+
+<style>
+  .budget-stack{
+    display:grid;
+    gap:12px;
+    margin-top:2px;
+  }
+  .budget-line{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:16px;
+    padding:12px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .budget-line:last-child{border-bottom:0;}
+  .budget-line .name{
+    color:var(--slate);
+    font-size:11.5px;
+    line-height:1.4;
+  }
+  .budget-line .amount{
+    font-family:"Space Grotesk",Roboto,Arial,sans-serif;
+    font-weight:600;
+    color:var(--electric);
+    font-size:22px;
+    white-space:nowrap;
+  }
+  .budget-total{
+    margin-top:14px;
+    padding:16px 17px;
+    border-radius:14px;
+    background:linear-gradient(135deg,rgba(7,65,225,.07),rgba(0,175,240,.05));
+    border:1px solid rgba(0,120,215,.16);
+  }
+  .budget-total .label{
+    color:var(--slate);
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    font-weight:700;
+  }
+  .budget-total .amount{
+    margin-top:3px;
+    font-family:"Space Grotesk",Roboto,Arial,sans-serif;
+    font-weight:600;
+    color:var(--electric);
+    font-size:34px;
+    letter-spacing:-.03em;
+  }
+  .budget-total .note{
+    margin-top:5px;
+    color:var(--slate);
+    font-size:11.5px;
+    line-height:1.45;
+  }
+</style>
+
+
+<style>
+  .budget-compare{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:12px;
+    margin-bottom:16px;
+  }
+  .budget-compare-card{
+    padding:16px;
+    border:1px solid var(--line);
+    border-radius:15px;
+    background:#fff;
+  }
+  .budget-compare-card .label{
+    color:var(--slate);
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    font-weight:700;
+  }
+  .budget-compare-card .value{
+    margin-top:5px;
+    font-family:"Space Grotesk",Roboto,Arial,sans-serif;
+    font-weight:600;
+    color:var(--electric);
+    font-size:26px;
+    letter-spacing:-.03em;
+  }
+  .budget-compare-card .sub{
+    margin-top:4px;
+    color:var(--slate);
+    font-size:11px;
+    line-height:1.4;
+  }
+  .budget-progress{
+    margin-top:14px;
+    padding:16px 17px;
+    border-radius:15px;
+    background:rgba(237,236,255,.28);
+    border:1px solid var(--line);
+  }
+  .budget-progress-head{
+    display:flex;
+    justify-content:space-between;
+    gap:14px;
+    align-items:center;
+    margin-bottom:8px;
+    color:var(--dark);
+    font-size:11.5px;
+  }
+  .budget-progress-head strong{color:var(--electric);}
+  .budget-bar{
+    height:12px;
+    border-radius:999px;
+    background:rgba(160,163,189,.18);
+    overflow:hidden;
+  }
+  .budget-bar span{
+    display:block;
+    height:100%;
+    width:29.83%;
+    border-radius:999px;
+    background:linear-gradient(90deg,var(--electric),var(--cyan));
+  }
+  .variance-box{
+    margin-top:16px;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+  }
+  .variance-card{
+    padding:18px;
+    border:1px solid var(--line);
+    border-radius:16px;
+    background:#fff;
+  }
+  .variance-card h4{
+    margin:0 0 10px;
+    color:var(--electric);
+    font-size:14px;
+  }
+  .variance-card ul{
+    margin:0;
+    padding-left:18px;
+    color:var(--dark);
+    font-size:11.5px;
+    line-height:1.55;
+  }
+  .variance-card li+li{margin-top:6px;}
+  .lesson-strip{
+    margin-top:16px;
+    padding:18px 20px;
+    border-radius:16px;
+    background:linear-gradient(135deg,rgba(7,65,225,.06),rgba(0,175,240,.04));
+    border:1px solid rgba(0,120,215,.16);
+  }
+  .lesson-strip .kicker{
+    color:var(--azure);
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    font-weight:700;
+  }
+  .lesson-strip strong{
+    display:block;
+    margin-top:5px;
+    color:var(--electric);
+    font-size:14px;
+  }
+  .lesson-strip p{
+    margin:6px 0 0;
+    color:var(--dark);
+    font-size:12px;
+    line-height:1.55;
+  }
+  @media(max-width:980px){
+    .budget-compare{grid-template-columns:repeat(2,1fr);}
+    .variance-box{grid-template-columns:1fr;}
+  }
+  @media(max-width:700px){
+    .budget-compare{grid-template-columns:1fr;}
+  }
+</style>
+
+
+<style>
+  .budget-composition{
+    margin-top:12px;
+    border:1px solid var(--line);
+    border-radius:14px;
+    overflow:hidden;
+    background:#fff;
+  }
+  .budget-comp-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:16px;
+    padding:11px 13px;
+    border-bottom:1px solid var(--line);
+  }
+  .budget-comp-row:last-child{border-bottom:0;}
+  .budget-comp-row .budget-comp-name{
+    color:var(--slate);
+    font-size:11.5px;
+    line-height:1.4;
+  }
+  .budget-comp-row .budget-comp-name small{color:var(--slate);font-size:10.5px;}
+  .budget-comp-row strong{
+    color:var(--electric);
+    font-size:12.5px;
+    white-space:nowrap;
+  }
+  .budget-comp-row.total{
+    background:rgba(7,65,225,.05);
+  }
+  .budget-comp-row.total .budget-comp-name,
+  .budget-comp-row.total strong{
+    color:var(--ink);
+    font-weight:700;
+  }
+</style>
+
+<style>
+  .cover h1, h2, h3,
+  .kpi-value, .finding-num, .campaign-card .v, .signal-card .v,
+  .reward-side .money, .funnel-step span:last-child {
+    font-family:"Space Grotesk", Roboto, Arial, sans-serif !important;
+    font-weight:600 !important;
+  }
+  body, p, li, td, th, .subtitle, .section-note, .kpi-label, .kpi-sub,
+  .bar-label, .bar-value, .caption, .l {
+    font-family:Roboto, Arial, sans-serif !important;
+  }
+</style>
+
+<style>
+  /* ===== Final font & mobile QA ===== */
+
+  /* Font contract:
+     - Headings / display numbers: Space Grotesk 600 (SemiBold)
+     - Body / notes / tables: Roboto
+  */
+  .cover h1, h1, h2, h3, h4,
+  .kpi-value, .finding-num, .campaign-card .v, .signal-card .v,
+  .reward-side .money, .funnel-step span:last-child,
+  .event-kpi .v, .cadence-row .value, .metric-score .metric-title,
+  .budget-compare-card .value, .budget-total .amount {
+    font-family:"Space Grotesk",Roboto,Arial,sans-serif !important;
+    font-weight:600 !important;
+  }
+
+  body, p, li, td, th, small, span,
+  .subtitle, .section-note, .kpi-label, .kpi-sub,
+  .bar-label, .bar-value, .caption, .l, .report-type,
+  .section-kicker, .verdict-label {
+    font-family:Roboto,Arial,sans-serif;
+  }
+
+  /* Dense tabular content can be swiped on small screens instead of crushing text. */
+  .reward-summary{
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  @media(max-width:700px){
+    body{
+      font-size:14px;
+      line-height:1.58;
+      overflow-x:hidden;
+    }
+
+    .page{
+      width:calc(100% - 16px);
+      margin:8px auto 32px;
+    }
+
+    .cover{
+      padding:22px 18px 24px !important;
+      border-radius:18px;
+    }
+
+    .cover-top{
+      flex-direction:column;
+      align-items:flex-start;
+      gap:10px;
+    }
+
+    .brand-logo{
+      width:176px !important;
+      height:56px !important;
+      padding:7px 11px !important;
+      border-radius:12px;
+    }
+
+    .report-type{
+      padding:6px 9px;
+      font-size:10.5px;
+      line-height:1.3;
+    }
+
+    .cover h1{
+      margin-top:20px;
+      font-size:31px !important;
+      line-height:1.08 !important;
+      letter-spacing:-.035em;
+    }
+
+    .cover .subtitle{
+      font-size:14px !important;
+      line-height:1.55;
+    }
+
+    .headline{
+      margin-top:18px;
+      padding:15px 16px;
+      font-size:15px !important;
+      line-height:1.55;
+      border-radius:13px;
+    }
+
+    .section{
+      margin-top:14px;
+      border-radius:16px;
+    }
+
+    .section-inner{
+      padding:18px 16px !important;
+    }
+
+    .section-head{
+      gap:8px;
+      margin-bottom:14px;
+    }
+
+    .section-kicker{
+      font-size:10.5px !important;
+    }
+
+    h2{
+      font-size:24px !important;
+      line-height:1.2 !important;
+    }
+
+    h3{
+      line-height:1.3;
+    }
+
+    .section-note{
+      font-size:12px !important;
+      line-height:1.5;
+      max-width:none;
+    }
+
+    .kpi{
+      min-height:0 !important;
+      padding:17px 16px !important;
+    }
+
+    .kpi-label{
+      font-size:11px !important;
+    }
+
+    .kpi-value{
+      font-size:31px !important;
+    }
+
+    .kpi-sub{
+      font-size:12px !important;
+    }
+
+    .kpi-status{
+      margin-top:8px;
+      font-size:10.5px;
+    }
+
+    .assessment-text{
+      padding:17px 16px;
+      font-size:13.5px !important;
+    }
+
+    .status{
+      padding:16px;
+    }
+
+    .status strong{
+      font-size:14.5px !important;
+    }
+
+    .finding{
+      min-height:0 !important;
+      padding:18px 17px !important;
+    }
+
+    .finding h3{
+      font-size:17px !important;
+    }
+
+    .finding p{
+      font-size:13px !important;
+    }
+
+    .bar-row{
+      gap:8px;
+    }
+
+    .bar-label{
+      font-size:12.5px !important;
+    }
+
+    .priority-box,
+    .funnel,
+    .signal,
+    .timeline-card,
+    .cadence-card,
+    .reward-side{
+      padding:17px 16px !important;
+    }
+
+    .funnel-step{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:3px;
+      min-height:0 !important;
+      padding:11px 13px !important;
+    }
+
+    .funnel-step span:last-child{
+      font-size:16px !important;
+    }
+
+    .signal-grid{
+      gap:10px;
+    }
+
+    .signal-card{
+      padding:14px;
+    }
+
+    .signal-card .v{
+      font-size:24px !important;
+    }
+
+    .event-verdict-main{
+      padding:18px 17px;
+    }
+
+    .event-verdict-main h3{
+      font-size:19px !important;
+    }
+
+    .event-verdict-main p{
+      font-size:13px !important;
+    }
+
+    .event-kpi{
+      min-height:0;
+      padding:15px;
+    }
+
+    .event-kpi .v{
+      font-size:26px !important;
+    }
+
+    .timeline-item{
+      grid-template-columns:62px 1fr;
+      gap:10px;
+    }
+
+    .timeline:before{
+      left:36px;
+    }
+
+    .timeline-date{
+      font-size:10.5px;
+      padding:6px;
+    }
+
+    .cadence-row{
+      align-items:start;
+    }
+
+    .cadence-row .value{
+      font-size:16px !important;
+    }
+
+    .execution-proof{
+      gap:10px;
+    }
+
+    .reward-summary{
+      border-radius:14px;
+    }
+
+    .reward-summary table{
+      min-width:650px;
+    }
+
+    table{
+      font-size:12px !important;
+    }
+
+    th{
+      font-size:11px !important;
+    }
+
+    .budget-compare-card .value{
+      font-size:24px !important;
+    }
+
+    .budget-comp-row{
+      align-items:flex-start;
+    }
+
+    .budget-comp-row strong{
+      text-align:right;
+    }
+
+    .metric-score{
+      padding:15px;
+    }
+
+    .metric-score .state{
+      min-height:0;
+    }
+
+    .recommendation{
+      padding:18px 17px;
+    }
+
+    .recommendation p{
+      font-size:14px !important;
+    }
+
+    .footer{
+      align-items:flex-start;
+      font-size:10.5px;
+      line-height:1.5;
+    }
+
+    .footer-logo{
+      width:118px;
+    }
+  }
+</style>
+
+</head>
+
+<body>
+  <main class="page">
+
+    <section class="cover">
+      <div class="cover-top">
+        <div class="brand-logo">
+          <img src="data:image/png;base64,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" alt="SAVA - Good to Great">
+        </div>
+        <div class="report-type">Báo cáo điều hành · Internal Test</div>
+      </div>
+      <h1>Lumus Internal Test — Báo cáo kết quả</h1>
+      <div class="subtitle">
+        Báo cáo dành cho Ban Điều hành: tập trung vào mức độ tham gia, chiều sâu sử dụng,
+        các vấn đề ảnh hưởng trực tiếp đến mức độ sử dụng và đề xuất ưu tiên cho vòng tiếp theo.
+      </div>
+      <div class="headline">
+        Internal Test lần 1 đã <strong>đạt mục tiêu tạo độ phủ, thu thập feedback và xác định các ưu tiên cải tiến cốt lõi</strong>.
+        Kết quả hiện tại là baseline quan trọng để team tiếp tục tối ưu trải nghiệm Core, nâng độ tin cậy của AI
+        và chuẩn bị cho các vòng kiểm chứng sâu hơn về mức độ sử dụng trong công việc thực tế.
+      </div>
+    </section>
+
+    <!-- 1 -->
+    <section class="section">
+      <div class="section-inner">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">01 · Tóm tắt điều hành</div>
+            <h2>Kết quả tổng quan</h2>
+          </div>
+          <div class="section-note">65 người tham gia trên tổng 86 nhân sự trong danh sách nhân sự cung cấp.</div>
+        </div>
+
+        <div class="grid kpis">
+          <div class="kpi">
+            <div class="kpi-label">Nhân sự tham gia</div>
+            <div class="kpi-value">65 / 86</div>
+            <div class="kpi-sub"><strong>75,6%</strong> tỷ lệ tham gia</div><div class="kpi-status">Độ phủ tốt</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Prompt đã gửi</div>
+            <div class="kpi-value">1.901</div>
+            <div class="kpi-sub">≈ 29,2 prompt / tester toàn kỳ</div><div class="kpi-status">Có phát sinh sử dụng</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Tổng thời gian sử dụng</div>
+            <div class="kpi-value">1.230'</div>
+            <div class="kpi-sub">≈ 20,5 giờ sử dụng</div><div class="kpi-status warn">Cần đo theo ngày active</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Thời gian dùng TB / người / ngày</div>
+            <div class="kpi-value">54 giây</div>
+            <div class="kpi-sub">≈ 0,90 phút; chia đều 65 tester × 21 ngày</div><div class="kpi-status low">Baseline vòng 1</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Bug ghi nhận</div>
+            <div class="kpi-value">136</div>
+            <div class="kpi-sub">Đủ data để xác định vấn đề chính</div><div class="kpi-status warn">Cần ưu tiên xử lý</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Engagement truyền thông</div>
+            <div class="kpi-value">849</div>
+            <div class="kpi-sub">23 bài · 36,9 tương tác / bài</div><div class="kpi-status">Truyền thông tốt</div>
+          </div>
+        </div>
+
+        <div class="assessment">
+          <div class="assessment-text">
+            <strong>Đánh giá:</strong> Internal Test lần 1 đã hoàn thành tốt vai trò của một vòng thử nghiệm đầu tiên:
+            tạo độ phủ trong nội bộ, thu về lượng feedback đủ lớn và giúp team xác định rõ các vấn đề cần ưu tiên.
+            <strong>Các chỉ số sử dụng hiện tại nên được xem là baseline ban đầu</strong>, chưa phải thước đo để kết luận về khả năng scale.
+            Ở vòng tiếp theo, team có thể tập trung sâu hơn vào mức độ quay lại, chiều sâu sử dụng và các use case công việc thực tế.
+          </div>
+          <div class="status">
+            <div class="light"></div>
+            <small>Đánh giá tổng thể</small>
+            <strong>HOÀN THÀNH TỐT VÒNG 1<br>SẴN SÀNG CHO VÒNG KIỂM CHỨNG TIẾP THEO</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 -->
+    <section class="section">
+      <div class="section-inner">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">02 · Kết quả & nhận định</div>
+            <h2>3 vấn đề ảnh hưởng trực tiếp đến mức độ sử dụng</h2>
+          </div>
+          <div class="section-note">Tóm tắt từ 136 bug và insight trong đợt test.</div>
+        </div>
+
+        <div class="grid findings">
+          <article class="finding">
+            <div class="finding-num">01</div>
+            <h3>Trải nghiệm sản phẩm chưa đủ ổn định</h3>
+            <p>
+              Các lỗi về UX, login, session, chat, prompt và performance làm gián đoạn flow.
+              Với công cụ dùng cho công việc, mỗi lần mất nội dung hoặc bị chặn tác vụ đều làm giảm khả năng quay lại.
+            </p>
+            <div class="impact">Ưu tiên: Độ ổn định Core</div>
+          </article>
+
+          <article class="finding">
+            <div class="finding-num">02</div>
+            <h3>Độ tin cậy của AI chưa đạt mức dùng cho công việc thật</h3>
+            <p>
+              Sai citation, sai trọng tâm, bổ sung thông tin không có căn cứ, chưa biết nói rõ giới hạn.
+              Một câu trả lời tự tin nhưng sai có rủi ro cao hơn việc AI thừa nhận chưa đủ dữ liệu.
+            </p>
+            <div class="impact">Ưu tiên: Độ tin cậy câu trả lời</div>
+          </article>
+
+          <article class="finding">
+            <div class="finding-num">03</div>
+            <h3>Department có tiềm năng thành USP nhưng chưa hoàn thiện</h3>
+            <p>
+              Invite, permission, role, tài liệu, phê duyệt và Q&A từ knowledge base còn lỗi.
+              Department cần được nhìn như AI workspace theo phòng ban, không chỉ là một phòng chat có file.
+            </p>
+            <div class="impact">Ưu tiên: Workflow doanh nghiệp</div>
+          </article>
+        </div>
+
+        <div class="bug-layout" style="margin-top:18px">
+          <div class="bars">
+            <div class="bar-row">
+              <div class="bar-label">UX & trải nghiệm sản phẩm</div>
+              <div class="bar-track"><div class="bar-fill" style="width:100%"></div></div>
+              <div class="bar-value">22,1%</div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-label">Performance & Reliability</div>
+              <div class="bar-track"><div class="bar-fill" style="width:93%"></div></div>
+              <div class="bar-value">20,6%</div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-label">Độ tin cậy & chất lượng phản hồi AI</div>
+              <div class="bar-track"><div class="bar-fill" style="width:86%"></div></div>
+              <div class="bar-value">19,1%</div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-label">Department & Collaboration</div>
+              <div class="bar-track"><div class="bar-fill" style="width:83%"></div></div>
+              <div class="bar-value">18,4%</div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-label">File & Knowledge Processing</div>
+              <div class="bar-track"><div class="bar-fill" style="width:57%"></div></div>
+              <div class="bar-value">12,5%</div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-label">AI Personality & Interaction</div>
+              <div class="bar-track"><div class="bar-fill" style="width:33%"></div></div>
+              <div class="bar-value">7,4%</div>
+            </div>
+          </div>
+
+          <div class="priority-box">
+            <h3>Thứ tự ưu tiên đề xuất</h3>
+            <div class="priority-list">
+              <div class="priority-item">
+                <div class="pill p0">P0</div>
+                <div>
+                  <strong>Core Chat / độ tin cậy AI</strong>
+                  <span>Ảnh hưởng trực tiếp đến mức độ tin cậy khi dùng Lumus cho công việc.</span>
+                </div>
+              </div>
+              <div class="priority-item">
+                <div class="pill p0">P0</div>
+                <div>
+                  <strong>Department critical flow</strong>
+                  <span>Ảnh hưởng trực tiếp tới USP và định hướng AI doanh nghiệp.</span>
+                </div>
+              </div>
+              <div class="priority-item">
+                <div class="pill p1">P1</div>
+                <div>
+                  <strong>UX / Reliability</strong>
+                  <span>Nâng P0 cho lỗi mất dữ liệu, không đăng nhập được hoặc chặn hoàn toàn tác vụ.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 -->
+    <section class="section">
+      <div class="section-inner">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">03 · Mức độ sử dụng & thói quen</div>
+            <h2>Độ phủ tốt, đã hình thành baseline cho các vòng kiểm chứng tiếp theo</h2>
+          </div>
+          <div class="section-note">Mốc 21 ngày được tính theo thời gian Internal Test chính thức 06/07–26/07.</div>
+        </div>
+
+        <div class="adoption">
+          <div class="funnel">
+            <h3>Thang tín hiệu sử dụng</h3>
+            <div class="funnel-step f1" style="width:100%"><span>① Tổng nhân sự có thể tham gia</span><span>86 người</span></div>
+            <div class="funnel-step f2" style="width:100%"><span>② Đã tham gia Internal Test</span><span>65 · 75,6%</span></div>
+            <div class="funnel-step f3" style="width:100%"><span>③ Có tín hiệu quay lại qua Mission</span><span>3 người 7/7 · 4 người 5/5</span></div>
+            <div class="funnel-step f4" style="width:100%"><span>④ Thói quen sử dụng tự nhiên</span><span>Đo ở vòng tiếp theo</span></div>
+            <div class="funnel-note">
+              Không coi bước ③ là một funnel định lượng vì hai nhóm 7/7 và 5/5 có thể trùng nhau.
+              Đây là <strong>tín hiệu hành vi</strong>; để đo adoption thật cần thêm DAU/WAU,
+              thời gian dùng theo ngày active và tỷ lệ quay lại khi không có phần thưởng.
+            </div>
+          </div>
+
+          <div class="signal">
+            <h3>Tín hiệu quay lại sử dụng</h3>
+            <div class="grid signal-grid">
+              <div class="signal-card">
+                <div class="v">3 người</div>
+                <div class="l">Hoàn thành Daily Mission đủ <strong>7/7 ngày</strong> trong tuần 2.</div>
+              </div>
+              <div class="signal-card">
+                <div class="v">4 người</div>
+                <div class="l">Hoàn thành đủ Daily Mission trong <strong>5/5 ngày làm việc</strong>.</div>
+              </div>
+              <div class="signal-card">
+                <div class="v">54 giây</div>
+                <div class="l">Thời gian dùng trung bình / người / ngày theo cách chia đều toàn kỳ.</div>
+              </div>
+              <div class="signal-card">
+                <div class="v">29,2</div>
+                <div class="l">Prompt / tester tính trên toàn bộ kỳ test.</div>
+              </div>
+            </div>
+            <div class="warning">
+              <strong>Định hướng đo lường tiếp theo:</strong> Mission, leaderboard, tiền thưởng và trà sữa đã hỗ trợ tốt cho việc tạo nhịp tham gia.
+              Ở vòng test tiếp theo, team nên bổ sung thêm chỉ số <strong>mức sử dụng tự nhiên</strong> để hiểu rõ hơn
+              mức độ người dùng chủ động quay lại Lumus ngoài các hoạt động gamification.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 -->
+    <section class="section">
+      <div class="section-inner">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">04 · Triển khai sự kiện & truyền thông</div>
+            <h2>Internal Test được tổ chức bài bản và triển khai thành công về mặt vận hành</h2>
+          </div>
+          <div class="section-note">
+            Đánh giá “thành công” ở đây nói về <strong>khâu tổ chức, độ phủ và mức tham gia</strong>;
+            chưa đồng nghĩa sản phẩm đã chứng minh được adoption tự nhiên.
+          </div>
+        </div>
+
+        <div class="event-verdict">
+          <div class="event-verdict-main">
+            <div class="verdict-label">Đánh giá thực thi</div>
+            <h3>Triển khai tốt — có chuẩn bị, có launching, có nhịp truyền thông và có cơ chế kéo người dùng quay lại</h3>
+            <p>
+              Chương trình không được triển khai như một đợt “mở app rồi chờ feedback”, mà có đầy đủ các lớp:
+              <strong>launching event Mini Happy Time</strong> để phổ biến sản phẩm trước khi test,
+              lịch Internal Test và Bug Hunt rõ ràng, Mission Board + leaderboard để duy trì nhịp sử dụng,
+              truyền thông liên tục trên Slack và tổng kết/trao giải sau chương trình.
+              Kết quả 65/86 nhân sự tham gia, 1.901 prompt, 136 bug và 849 lượt tương tác cho thấy
+              chương trình đã tạo được độ phủ và feedback loop đủ lớn để phục vụ vòng cải tiến tiếp theo.
+            </p>
+          </div>
+
+          <div class="verdict-split">
+            <div class="verdict-chip">
+              <div class="icon">✓</div>
+              <strong>Vận hành sự kiện</strong>
+              <span>Được xem là thành công: có chuẩn bị trước, launching, hướng dẫn, truyền thông, nhiệm vụ và tổng kết.</span>
+            </div>
+            <div class="verdict-chip">
+              <div class="icon">△</div>
+              <strong>Kết luận về sản phẩm</strong>
+              <span>Chưa thể kết luận product adoption thành công vì mức sử dụng tự nhiên và retention chưa được tách khỏi incentive.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid event-kpis">
+          <div class="event-kpi">
+            <div class="v">65 / 86</div>
+            <div class="l"><strong>75,6%</strong> nhân sự tham gia Internal Test.</div>
+          </div>
+          <div class="event-kpi">
+            <div class="v">23 bài</div>
+            <div class="l">Tổng số bài truyền thông trong toàn chiến dịch 02/07–28/07.</div>
+          </div>
+          <div class="event-kpi">
+            <div class="v">~6,0 bài/tuần</div>
+            <div class="l">Nhịp đăng trung bình toàn chiến dịch: 23 bài / 27 ngày.</div>
+          </div>
+          <div class="event-kpi">
+            <div class="v">849</div>
+            <div class="l">Tổng lượt tương tác trên Slack; trung bình 36,9 tương tác/bài.</div>
+          </div>
+          <div class="event-kpi">
+            <div class="v">01</div>
+            <div class="l"><strong>Launching Event</strong> — Mini Happy Time được tổ chức trước Internal Test để giới thiệu Lumus và hướng dẫn cách tham gia.</div>
+          </div>
+        </div>
+
+        <div class="event-layout">
+          <div class="timeline-card">
+            <h3>Timeline triển khai</h3>
+            <div class="timeline">
+              <div class="timeline-item">
+                <div class="timeline-date">02/07</div>
+                <div class="timeline-content">
+                  <strong>Mời tham gia Mini Happy Time</strong>
+                  <span>Truyền thông trước sự kiện, tạo awareness cho Lumus trước khi bước vào Internal Test.</span>
+                </div>
+              </div>
+
+              <div class="timeline-item">
+                <div class="timeline-date">03/07</div>
+                <div class="timeline-content">
+                  <strong>Launching event — Mini Happy Time</strong>
+                  <span>Giới thiệu Lumus trực tiếp, phổ biến cách dùng và chuẩn bị người dùng cho giai đoạn test.</span>
+                </div>
+              </div>
+
+              <div class="timeline-item">
+                <div class="timeline-date">06/07</div>
+                <div class="timeline-content">
+                  <strong>Internal Test & Bug Hunt chính thức bắt đầu</strong>
+                  <span>Công bố link test, hướng dẫn gửi bug/góp ý và cơ chế tham gia giải thưởng.</span>
+                </div>
+              </div>
+
+              <div class="timeline-item">
+                <div class="timeline-date">13/07</div>
+                <div class="timeline-content">
+                  <strong>Daily / Weekly Mission + Dashboard tính điểm</strong>
+                  <span>Bổ sung Mission Board, leaderboard và reward để duy trì nhịp tham gia xuyên suốt test.</span>
+                </div>
+              </div>
+
+              <div class="timeline-item">
+                <div class="timeline-date">26/07</div>
+                <div class="timeline-content">
+                  <strong>Kết thúc giai đoạn Internal Test</strong>
+                  <span>Đóng giai đoạn thu thập chính sau 21 ngày triển khai chính thức.</span>
+                </div>
+              </div>
+
+              <div class="timeline-item">
+                <div class="timeline-date">28/07</div>
+                <div class="timeline-content">
+                  <strong>Công bố kết quả và người nhận giải</strong>
+                  <span>Khép vòng truyền thông bằng kết quả, ghi nhận tester và các hạng mục giải thưởng.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cadence-card">
+            <h3>Tần suất truyền thông</h3>
+
+            <div class="cadence-row">
+              <div class="name">Toàn chiến dịch truyền thông<br><span style="color:var(--slate);font-size:11px">02/07–28/07 · 27 ngày</span></div>
+              <div class="value">23 bài</div>
+            </div>
+
+            <div class="cadence-row">
+              <div class="name">Bình quân toàn chiến dịch</div>
+              <div class="value">≈ 6,0 bài/tuần</div>
+            </div>
+
+            <div class="cadence-row">
+              <div class="name">Trong kỳ Internal Test chính thức<br><span style="color:var(--slate);font-size:11px">06/07–26/07 · 21 ngày</span></div>
+              <div class="value">20 bài</div>
+            </div>
+
+            <div class="cadence-row">
+              <div class="name">Bình quân trong thời gian test</div>
+              <div class="value">≈ 6,7 bài/tuần</div>
+            </div>
+
+            <div class="cadence-row">
+              <div class="name">Mức tương tác bình quân</div>
+              <div class="value">36,9 / bài</div>
+            </div>
+
+            <div class="cadence-note">
+              Cách tính 20 bài trong kỳ test: từ tổng <strong>23 bài</strong>, loại 3 bài nằm ngoài cửa sổ
+              06/07–26/07 gồm <strong>02/07, 03/07 và 28/07</strong>.
+              Như vậy nhịp truyền thông thực tế trong giai đoạn test đạt gần <strong>1 bài/ngày làm việc</strong>,
+              đủ dày để duy trì awareness nhưng vẫn cần đánh giá thêm mức độ “quá tải” nếu áp dụng dài hạn.
+            </div>
+          </div>
+        </div>
+
+        <div class="execution-proof">
+          <div class="proof">
+            <strong>Có launching trước khi test</strong>
+            Mini Happy Time được dùng để giới thiệu sản phẩm và hướng dẫn người dùng trước ngày mở test.
+          </div>
+          <div class="proof">
+            <strong>Có cơ chế duy trì engagement</strong>
+            Bug Hunt, Daily / Weekly Mission, leaderboard, trà sữa và các hạng mục giải thưởng tạo nhịp quay lại.
+          </div>
+          <div class="proof">
+            <strong>Có truyền thông xuyên suốt</strong>
+            Nội dung được cập nhật liên tục: hướng dẫn, reminder, milestone bug, feature Department, leaderboard và tổng kết.
+          </div>
+          <div class="proof">
+            <strong>Có đầu tư hậu cần</strong>
+            Chứng từ thanh toán ghi nhận 1.003.000 VNĐ cho Mini Happy Time; 318.500 VNĐ tiền nước được gộp vào chi phí giải thưởng vì đây là phần thưởng trao cho 4 người hoàn thành nhiệm vụ 5 ngày.
+          </div>
+        </div>
+      </div>
+    </section>
+
+<!-- 5 -->
+    <section class="section">
+      <div class="section-inner">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">05 · Gamification & giải thưởng</div>
+            <h2>Kết quả Gamification & giải thưởng</h2>
+          </div>
+          <div class="section-note">Trọng tâm là hiệu quả gamification, ngân sách kế hoạch và mức thực chi; danh sách người nhận giữ ở mức tóm tắt.</div>
+        </div>
+
+        <div class="grid reward-grid">
+          <div class="reward-summary">
+            <table>
+              <thead>
+                <tr>
+                  <th>Hạng mục</th>
+                  <th>Người / phòng ban nhận</th>
+                  <th>Giải thưởng</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Top Lumus Tester</strong></td>
+                  <td>Phuoc Nguyen Nhu</td>
+                  <td>1.500.000 VNĐ</td>
+                </tr>
+                <tr>
+                  <td><strong>Friend of Lumus — Tuần 2</strong></td>
+                  <td>Long Tran Tuan · Phuoc Nguyen Nhu · Trangntk</td>
+                  <td>180.000 VNĐ</td>
+                </tr>
+                <tr>
+                  <td><strong>Lumus Master</strong></td>
+                  <td>Long Tran Tuan</td>
+                  <td>300.000 VNĐ</td>
+                </tr>
+                <tr>
+                  <td><strong>Lumus MVD</strong></td>
+                  <td>Nhân sự - Văn hóa</td>
+                  <td>500.000 VNĐ</td>
+                </tr>
+                <tr>
+                  <td><strong>Lumus Bug Hunter</strong></td>
+                  <td>Thành THT</td>
+                  <td>500.000 VNĐ</td>
+                </tr>
+                <tr>
+                  <td><strong>5 ngày nhiệm vụ — Trà Sữa Về Tay</strong></td>
+                  <td>Long Trần · Hoàng Nhật Đông · Phuoc Nguyen Nhu · Hoàng Cường</td>
+                  <td>1 ly trà sữa / người</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <aside class="reward-side">
+            <div class="caption">Ngân sách kế hoạch vs. thực chi</div>
+
+            <div class="budget-compare">
+              <div class="budget-compare-card">
+                <div class="label">Ngân sách đề nghị</div>
+                <div class="value">14.420.000 VNĐ</div>
+                <div class="sub">Ngân sách tối đa theo kế hoạch giải thưởng + Mini Happy Time.</div>
+              </div>
+              <div class="budget-compare-card">
+                <div class="label">Thực chi đã xác định</div>
+                <div class="value">4.301.500 VNĐ</div>
+                <div class="sub">3.298.500 VNĐ giải thưởng, bao gồm 2.980.000 VNĐ tiền mặt/e-voucher và 318.500 VNĐ tiền nước trao giải cho 4 người hoàn thành nhiệm vụ 5 ngày + 1.003.000 VNĐ chi phí Mini Happy Time.</div>
+              </div>
+              <div class="budget-compare-card">
+                <div class="label">Chênh lệch chưa sử dụng</div>
+                <div class="value">10.118.500 VNĐ</div>
+                <div class="sub">Tương đương 70.2% ngân sách đề nghị.</div>
+              </div>
+              <div class="budget-compare-card">
+                <div class="label">Tỷ lệ sử dụng ngân sách</div>
+                <div class="value">29.8%</div>
+                <div class="sub">Thực chi / ngân sách đã xin.</div>
+              </div>
+            </div>
+
+            <div class="budget-progress">
+              <div class="budget-progress-head">
+                <span>Mức sử dụng ngân sách</span>
+                <strong>4,301,500 / 14.420.000 VNĐ</strong>
+              </div>
+              <div class="budget-bar"><span></span></div>
+            </div>
+            <div class="budget-composition">
+              <div class="budget-comp-row">
+                <span class="budget-comp-name">Giải thưởng<br><small>Tiền mặt / e-voucher + nước trao giải nhiệm vụ 5 ngày</small></span>
+                <strong>3.298.500 VNĐ</strong>
+              </div>
+              <div class="budget-comp-row">
+                <span class="budget-comp-name">Mini Happy Time</span>
+                <strong>1.003.000 VNĐ</strong>
+              </div>
+              <div class="budget-comp-row total">
+                <span class="budget-comp-name">Tổng thực chi đã xác định</span>
+                <strong>4.301.500 VNĐ</strong>
+              </div>
+            </div><div class="variance-box">
+              <div class="variance-card">
+                <h4>Vì sao thực chi thấp hơn kế hoạch?</h4>
+                <ul>
+                  <li>Kế hoạch ban đầu dự trù theo <strong>mức tối đa</strong> cho Friend of Lumus tuần 2 và tuần 3: 86 suất × 60.000 VNĐ mỗi tuần.</li>
+                  <li>Số người thực tế đạt điều kiện nhận thưởng thấp hơn đáng kể so với mức dự trù; ví dụ Friend of Lumus tuần 2 chỉ có 3 người nhận giải.</li>
+                  <li>Một số hạng mục trong kế hoạch đã <strong>hủy / điều chỉnh</strong> sau khi cập nhật cơ chế và kết quả thực tế.</li>
+                  <li>Ngân sách chỉ giải ngân theo số người thực tế đủ điều kiện và chi phí thực tế phát sinh. Vì vậy, dù đã ghi nhận đủ cả 4 phần thưởng nước của nhiệm vụ 5 ngày, tổng thực chi vẫn thấp hơn đáng kể so với ngân sách xin ban đầu.</li>
+                </ul>
+              </div>
+
+              <div class="variance-card">
+                <h4>Kinh nghiệm cho lần test tiếp theo</h4>
+                <ul>
+                  <li>Tách rõ <strong>ngân sách trần</strong> và <strong>ngân sách dự kiến thực chi</strong> ngay từ lúc trình duyệt.</li>
+                  <li>Không dự trù reward theo 100% headcount nếu điều kiện nhận giải phụ thuộc hành vi; dùng tỷ lệ qualifying dự kiến để forecast sát hơn.</li>
+                  <li>Chia ngân sách theo từng phase và chỉ mở ngân sách phase sau khi có data participation của phase trước.</li>
+                  <li>Chuẩn hóa rule giải thưởng trước launch để hạn chế thay đổi/hủy hạng mục trong quá trình test.</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="lesson-strip">
+              <div class="kicker">Budget takeaway</div>
+              <strong>Chênh lệch ngân sách không phản ánh chương trình triển khai kém; chủ yếu đến từ cách dự trù theo mức tối đa trong khi số người thực tế đủ điều kiện nhận thưởng thấp hơn.</strong>
+              <p>
+                Với vòng thử nghiệm tiếp theo, team nên lập budget theo 3 lớp: <strong>Base budget</strong> cho chi phí chắc chắn,
+                <strong>Variable reward budget</strong> theo số người đạt điều kiện và <strong>Contingency</strong> riêng.
+                Cách này giúp dự toán sát hơn, dễ giải trình và vẫn giữ đủ dư địa nếu participation cao hơn dự kiến.
+              </p>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 -->
+    <section class="section">
+      <div class="section-inner">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">06 · Đề xuất điều hành</div>
+            <h2>Đề xuất ưu tiên cho vòng tiếp theo</h2>
+          </div>
+          <div class="section-note">Chuyển từ “thêm feature” sang “xác nhận giá trị sử dụng thực”.</div>
+        </div>
+
+        <div class="grid actions">
+          <div class="action-card">
+            <div class="label">P0 · Fix trước khi mở rộng test</div>
+            <h3>Ổn định Core</h3>
+            <ul>
+              <li>Login, session, chat và lịch sử hội thoại.</li>
+              <li>Không mất prompt/kết quả khi có lỗi.</li>
+              <li>Citation đúng và Lumus biết giới hạn khi thiếu dữ liệu.</li>
+              <li>Department critical flow: tạo → mời → upload → duyệt → hỏi AI.</li>
+            </ul>
+          </div>
+
+          <div class="action-card">
+            <div class="label">P1 · Kiểm chứng giá trị sản phẩm</div>
+            <h3>Đo mức sử dụng thực</h3>
+            <ul>
+              <li>DAU / WAU và tỷ lệ người dùng quay lại.</li>
+              <li>Thời gian dùng / người / ngày active, thay vì chỉ chia đều theo tổng số ngày.</li>
+              <li>Tỷ lệ quay lại tự nhiên khi giảm phần thưởng.</li>
+              <li>Use case thật theo từng Department.</li>
+            </ul>
+          </div>
+
+          <div class="action-card">
+            <div class="label">P2 · Mở rộng sau khi kiểm chứng</div>
+            <h3>Mở rộng sau khi core ổn định</h3>
+            <ul>
+              <li>Google Workspace.</li>
+              <li>Báo cáo theo lịch.</li>
+              <li>Workflow nhiều bước có approval.</li>
+              <li>Agent / template theo phòng ban.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="recommendation">
+          <div class="kicker">Đề xuất</div>
+          <p>
+            <strong>Ưu tiên tiếp tục hoàn thiện Core trước khi bước sang vòng kiểm chứng sâu hơn.</strong>
+            Vòng test tiếp theo nên tập trung xác nhận hai yếu tố:
+            (1) mức độ ổn định khi Lumus được dùng trong công việc thực tế;
+            và (2) mức độ người dùng chủ động quay lại khi giảm dần tác động của phần thưởng.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 -->
+    <section class="section">
+      <div class="section-inner">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">07 · Chỉ số đánh giá vòng test tiếp theo</div>
+            <h2>Đề xuất tiêu chí đánh giá vòng test tiếp theo</h2>
+          </div>
+          <div class="section-note">Các mục tiêu bên dưới là <strong>đề xuất quản trị</strong>, không phải KPI đã được phê duyệt.</div>
+        </div>
+
+        <div class="metric-score-grid">
+          <div class="metric-score">
+            <div class="metric-title">Tỷ lệ tham gia</div>
+            <div class="state">
+              <span class="state-label">Hiện tại</span>
+              <span class="state-value">75,6%</span>
+            </div>
+            <div class="arrow">→</div>
+            <div class="state target">
+              <span class="state-label">Mục tiêu đề xuất</span>
+              <span class="state-value">≥ 80%</span>
+            </div>
+            <div class="purpose">Mục đích: duy trì độ phủ test đủ rộng.</div>
+          </div>
+
+          <div class="metric-score">
+            <div class="metric-title">Bug chặn luồng nghiêm trọng</div>
+            <div class="state">
+              <span class="state-label">Hiện tại</span>
+              <span class="state-value">Có ghi nhận</span>
+            </div>
+            <div class="arrow">→</div>
+            <div class="state target">
+              <span class="state-label">Mục tiêu đề xuất</span>
+              <span class="state-value">0 blocker ở Core flow</span>
+            </div>
+            <div class="purpose">Mục đích: xác nhận độ ổn định trước khi mở rộng test.</div>
+          </div>
+
+          <div class="metric-score">
+            <div class="metric-title">Thời gian dùng / người / ngày active</div>
+            <div class="state">
+              <span class="state-label">Hiện tại</span>
+              <span class="state-value">Chưa có dữ liệu active-day</span>
+            </div>
+            <div class="arrow">→</div>
+            <div class="state target">
+              <span class="state-label">Vòng tiếp theo</span>
+              <span class="state-value">Lập baseline trước, rồi mới chốt target</span>
+            </div>
+            <div class="purpose">Mục đích: đo chiều sâu sử dụng thực, tránh chia đều tổng phút cho toàn kỳ.</div>
+          </div>
+
+          <div class="metric-score">
+            <div class="metric-title">Tỷ lệ quay lại sử dụng</div>
+            <div class="state">
+              <span class="state-label">Hiện tại</span>
+              <span class="state-value">Chưa đo chuẩn theo WAU</span>
+            </div>
+            <div class="arrow">→</div>
+            <div class="state target">
+              <span class="state-label">Vòng tiếp theo</span>
+              <span class="state-value">Theo dõi tuần-over-tuần</span>
+            </div>
+            <div class="purpose">Mục đích: xác nhận thói quen / retention.</div>
+          </div>
+
+          <div class="metric-score">
+            <div class="metric-title">Bug về độ tin cậy AI</div>
+            <div class="state">
+              <span class="state-label">Hiện tại</span>
+              <span class="state-value">19,1% tổng bug</span>
+            </div>
+            <div class="arrow">→</div>
+            <div class="state target">
+              <span class="state-label">Mục tiêu đề xuất</span>
+              <span class="state-value">Giảm rõ rệt so với vòng hiện tại</span>
+            </div>
+            <div class="purpose">Mục đích: tăng khả năng dùng Lumus trong công việc thật.</div>
+          </div>
+
+          <div class="metric-score">
+            <div class="metric-title">Tỷ lệ quay lại tự nhiên</div>
+            <div class="state">
+              <span class="state-label">Hiện tại</span>
+              <span class="state-value">Chưa tách khỏi phần thưởng</span>
+            </div>
+            <div class="arrow">→</div>
+            <div class="state target">
+              <span class="state-label">Vòng tiếp theo</span>
+              <span class="state-value">Đo khi giảm reward / Mission</span>
+            </div>
+            <div class="purpose">Mục đích: xác nhận nhu cầu sử dụng tự nhiên, không phụ thuộc incentive.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Phụ lục -->
+    <section class="section appendix">
+      <div class="section-inner">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Phụ lục</div>
+            <h2>Nội dung chi tiết nên để cuối báo cáo</h2>
+          </div>
+          <div class="section-note">Không để benchmark và danh sách dài làm loãng phần quyết định quản trị.</div>
+        </div>
+
+        <div class="grid appendix-grid">
+          <div class="appendix-card">
+            <h3>Phụ lục A · Chi tiết toàn bộ nhóm bug</h3>
+            <p>Chi tiết 6 nhóm bug, ví dụ điển hình, insight và mức ưu tiên.</p>
+          </div>
+          <div class="appendix-card">
+            <h3>Phụ lục B · 23 Slack posts</h3>
+            <p>Danh sách toàn bộ bài truyền thông, reaction, replies và ranking tương tác.</p>
+          </div>
+          <div class="appendix-card">
+            <h3>Phụ lục C · Chi tiết toàn bộ giải thưởng</h3>
+            <p>Tiêu chí từng giải, người nhận, cách tính phần thưởng và Mission.</p>
+          </div>
+          <div class="appendix-card">
+            <h3>Phụ lục D · Roadmap sản phẩm</h3>
+            <p>Giai đoạn 1–3: Ổn định & tin cậy → Department Workspace → Workflow & AI thực thi công việc.</p>
+          </div>
+          <div class="appendix-card">
+            <h3>Phụ lục E · Benchmark</h3>
+            <p>Hermes · Viktor · Glean: dùng để tham chiếu chiến lược sản phẩm, không đặt giữa báo cáo kết quả chính.</p>
+          </div>
+          <div class="appendix-card">
+            <h3>Phụ lục F · Định nghĩa cách đo</h3>
+            <p>Định nghĩa DAU, WAU, ngày active, tỷ lệ quay lại tự nhiên và cách tách mức sử dụng do phần thưởng.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer">
+      <div class="footer-source">
+        <span>Nguồn: Lumus tổng hợp thông tin.docx · Nhân sự 25_06.xlsx · Danh sách giải thưởng Internal Test do team cung cấp · Chứng từ đề nghị thanh toán hoạt động tháng 07 (1.003.000 VNĐ Mini Happy Time; 318.500 VNĐ nước trao giải được hạch toán trong nhóm giải thưởng) · Bảng kế hoạch ngân sách giải thưởng 06/07–26/07.</span>
+        <span>Lưu ý: Thời gian dùng/người/ngày được chia theo 21 ngày Internal Test (06/07–26/07); cần dữ liệu theo event để đo thời gian dùng trên ngày active chính xác.</span>
+      </div>
+      <div class="footer-logo">
+        <img src="data:image/png;base64,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" alt="SAVA - Good to Great">
+      </div>
+    </div>
+
+  </main>
+</body>
+</html>
